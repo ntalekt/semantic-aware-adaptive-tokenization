@@ -1,10 +1,10 @@
 import unittest
-from sat_tokenizer.tokenizer import SATokenizer  # Updated import path
+from sat_tokenizer.tokenizer import SATokenizer
 
 
 class TestSATokenizer(unittest.TestCase):
     def setUp(self):
-        self.tokenizer = SATokenizer()
+        self.tokenizer = SATokenizer(sp_model_path=None)
 
     def test_basic_tokenization(self):
         text = "New York City is amazing"

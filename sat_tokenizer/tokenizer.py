@@ -6,19 +6,20 @@ from sentencepiece import SentencePieceProcessor
 import jellyfish
 from sklearn.metrics.pairwise import cosine_similarity
 
-
 class SATokenizer:
     def __init__(
         self,
         model_name: str = "sentence-transformers/distiluse-base-multilingual-cased-v2",
-        sp_model_path: str = "tokenizer.model",
+        sp_model_path: str = None,
         semantic_threshold: float = 0.82,
         merge_threshold: float = 0.75,
         context_window: int = 3,
     ):
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModel.from_pretrained(model_name)
-        self.sp_processor = SentencePieceProcessor(model_file=sp_model_path)
+        self.sp_processor = None
+        if sp_model_path:
+            self.sp_processor = SentencePieceProcessor(model_file=sp_model_path)
         self.soundex = jellyfish.soundex
         self.semantic_threshold = semantic_threshold
         self.merge_threshold = merge_threshold
@@ -89,10 +90,12 @@ class SATokenizer:
         if token.lower() in self.tokenizer.vocab:
             return [token]
 
-        bpe_tokens = self.sp_processor.encode_as_pieces(token)
-        if len(bpe_tokens) == 1:
-            return [jellyfish.soundex(token)]
-        return bpe_tokens
+        if self.sp_processor:
+            bpe_tokens = self.sp_processor.encode_as_pieces(token)
+            if len(bpe_tokens) > 1:
+                return bpe_tokens
+
+        return [jellyfish.soundex(token)]
 
     def tokenize(self, text: str, granularity: str = "auto") -> List[str]:
         units = self._semantic_segmentation(text)
@@ -109,3 +112,4 @@ class SATokenizer:
                 final_tokens.append(unit)
 
         return final_tokens
+
