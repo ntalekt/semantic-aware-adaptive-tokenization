@@ -1,4 +1,9 @@
-
+<div align="center">
+  <h4>
+    <a href="https://github.com/ntalekt/semantic-aware-adaptive-tokenization/stargazers"><img src="https://img.shields.io/github/stars/ntalekt/semantic-aware-adaptive-tokenization.svg"/></a>
+    <a href="https://github.com/ntalekt/semantic-aware-adaptive-tokenization/commits/master"><img src="https://img.shields.io/github/last-commit/ntalekt/semantic-aware-adaptive-tokenization.svg"/></a>
+  </h4>
+</div>
 ---
 
 # **Proposed Tokenization Method: Semantic-Aware Adaptive Tokenization (SAT)**
