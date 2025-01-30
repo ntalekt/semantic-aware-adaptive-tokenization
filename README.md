@@ -1,9 +1,8 @@
-<div align="center">
-  <h4>
-    <a href="https://github.com/ntalekt/semantic-aware-adaptive-tokenization/stargazers"><img src="https://img.shields.io/github/stars/ntalekt/semantic-aware-adaptive-tokenization?style=flat"/></a>
-    <a href="https://github.com/ntalekt/semantic-aware-adaptive-tokenization/commits/master"><img src="https://img.shields.io/github/last-commit/ntalekt/semantic-aware-adaptive-tokenization?style=flat"/></a>
-  </h4>
-</div>
+
+[![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Stargazers](https://img.shields.io/github/stars/ntalekt/semantic-aware-adaptive-tokenization?style=flat)](https://github.com/ntalekt/semantic-aware-adaptive-tokenization/stargazers)
+[![Last commit](https://img.shields.io/github/last-commit/ntalekt/semantic-aware-adaptive-tokenization?style=flat)](https://github.com/ntalekt/semantic-aware-adaptive-tokenization/commits/master)
 
 # **Proposed Tokenization Method: Semantic-Aware Adaptive Tokenization (SAT)**
 
@@ -63,7 +62,7 @@ The SAT method aims to enhance the performance of Large Language Models (LLMs) b
 5. **Rare Word Handling**  
    Reduces issues with out-of-vocabulary words by combining subword and phonetic methods.
 
-## **Implementation Roadmap**
+## **Implementation**
 
 ### **1. Core Components**
 - **Semantic Unit Detector**: Identifies meaningful phrases/entities.
@@ -80,201 +79,21 @@ The SAT method aims to enhance the performance of Large Language Models (LLMs) b
 | `torch` | >=2.0.0 | Neural network backend |
 | `scikit-learn` | >=1.2.0 | Similarity calculations |
 
-### **3. Step-by-Step Code Implementation**
-```python
-import torch
-from transformers import AutoTokenizer, AutoModel
-from sentencepiece import SentencePieceProcessor
-import soundex
-import re
-from typing import List, Union
-
-class SATokenizer:
-    def __init__(
-        self,
-        model_name: str = 'sentence-transformers/distiluse-base-multilingual-cased-v2',
-        sp_model_path: str = 'tokenizer.model',
-        semantic_threshold: float = 0.82,
-        merge_threshold: float = 0.75,
-        context_window: int = 3
-    ):
-        # Initialize components
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.model = AutoModel.from_pretrained(model_name)
-        self.sp_processor = SentencePieceProcessor(model_file=sp_model_path)
-        self.soundex = soundex.Soundex()
-        
-        # Configuration parameters
-        self.semantic_threshold = semantic_threshold
-        self.merge_threshold = merge_threshold
-        self.context_window = context_window
-        
-        # Special characters pattern
-        self.special_char_pattern = re.compile(r'[\W_]+', re.UNICODE)
-
-    def _get_embeddings(self, texts: List[str]) -> torch.Tensor:
-        """Batch process text to get embeddings"""
-        inputs = self.tokenizer(
-            texts,
-            return_tensors='pt',
-            padding=True,
-            truncation=True,
-            max_length=512
-        )
-        with torch.no_grad():
-            outputs = self.model(**inputs)
-        return outputs.last_hidden_state.mean(dim=1)
-
-    def _semantic_segmentation(self, text: str) -> List[str]:
-        """Identify semantic units in text"""
-        words = [w for w in re.split(r'(\s+)', text) if w.strip()]
-        if len(words) < 2:
-            return words
-
-        embeddings = self._get_embeddings(words)
-        similarities = cosine_similarity(embeddings[:-1], embeddings[1:])
-        
-        units = []
-        current_unit = [words[0]]
-        
-        for i, sim in enumerate(similarities.diagonal()):
-            if sim > self.semantic_threshold:
-                current_unit.append(words[i+1])
-            else:
-                units.append(''.join(current_unit).strip())
-                current_unit = [words[i+1]]
-        
-        units.append(''.join(current_unit).strip())
-        return [u for u in units if u]
-
-    def _context_aware_merge(self, units: List[str]) -> List[str]:
-        """Merge units based on contextual understanding"""
-        if len(units) < 2:
-            return units
-
-        merged = []
-        i = 0
-        while i < len(units):
-            best_score = -1
-            best_length = 1
-            current_context = units[i:i+self.context_window]
-            
-            # Test possible merges within context window
-            for j in range(1, len(current_context)+1):
-                candidate = ' '.join(current_context[:j])
-                candidate_emb = self._get_embeddings([candidate])
-                original_embs = self._get_embeddings(current_context[:j])
-                score = cosine_similarity(candidate_emb, original_embs.mean(axis=0, keepdims=True))[0][0]
-                
-                if score > best_score and score > self.merge_threshold:
-                    best_score = score
-                    best_length = j
-
-            merged.append(' '.join(current_context[:best_length]))
-            i += best_length
-        
-        return merged
-
-    def _handle_rare_words(self, token: str) -> List[str]:
-        """Process rare words using hybrid BPE-phonetic approach"""
-        if self.special_char_pattern.sub('', token) == '':
-            return [token]
-            
-        if token.lower() in self.tokenizer.vocab:
-            return [token]
-        
-        # Try BPE segmentation
-        bpe_tokens = self.sp_processor.encode_as_pieces(token)
-        if len(bpe_tokens) == 1:
-            # Fallback to phonetic encoding
-            return [self.soundex.soundex(token)]
-        return bpe_tokens
-
-    def tokenize(self, text: str, granularity: str = 'auto') -> List[str]:
-        """Main tokenization method"""
-        # Initial semantic segmentation
-        units = self._semantic_segmentation(text)
-        
-        # Context-aware merging
-        merged_units = self._context_aware_merge(units)
-        
-        # Handle rare words and special cases
-        final_tokens = []
-        for unit in merged_units:
-            if granularity == 'fine' or (granularity == 'auto' and len(unit.split()) > 1):
-                sub_tokens = self._handle_rare_words(unit)
-                final_tokens.extend(sub_tokens)
-            else:
-                final_tokens.append(unit)
-        
-        return final_tokens
-
-# Example usage
-sat = SATokenizer()
-
-text = "The New York Times reported that deepseek-r1 outperformed GPT-4 in recent benchmarks."
-print(sat.tokenize(text))
-# Output: ['The New York Times', 'reported', 'that', 'deepseek', '-', 'r1', 'outperformed', 'GPT-4', 'in', 'recent', 'benchmarks', '.']
-
-text = "La inteligencia artificial está transformando industrias en todo el mundo."
-print(sat.tokenize(text))
-# Output: ['La inteligencia artificial', 'está transformando', 'industrias', 'en todo el mundo', '.']
-```
-
-### **4. To Use This Implementation**
-
-1. Install requirements:
+### **3. Installation**
 ```bash
-pip install transformers sentencepiece soundex torch scikit-learn
+pip install sat-tokenizer
 ```
 
-2. Download a SentencePiece model (or train your own)
+### **4. Usage**
+```python
+from sat_tokenizer import SATokenizer
+tokenizer = SATokenizer()
+text = "The New York Times reported GPT-4's performance"
+tokens = tokenizer.tokenize(text)
+```
+Output: ['The New York Times', 'reported', "GPT-4's", 'performance']
 
-3. Test with different texts:
-```python
-# Technical text
-print(sat.tokenize("Transformer-based models achieve state-of-the-art results in NLP."))
-# ['Transformer-based', 'models', 'achieve', 'state-of-the-art', 'results', 'in', 'NLP', '.']
-
-# Conversational text
-print(sat.tokenize("I'd love to visit New York City someday!", granularity='fine'))
-# ['I'd', 'love', 'to', 'visit', 'New York City', 'someday', '!']
-```
-4. More
-#### Basic Example
-```python
-from satokenizer import SATokenizer
-sat = SATokenizer()
-text = "The New York Times reported that GPT-4 achieved state-of-the-art results."
-tokens = sat.tokenize(text)
-print(tokens)
-```
-Output: ['The New York Times', 'reported', 'that', 'GPT-4', 'achieved', 'state-of-the-art', 'results', '.']
-#### Multilingual Example
-```python
-text_es = "La inteligencia artificial está revolucionando el procesamiento de lenguaje natural."
-tokens_es = sat.tokenize(text_es)
-print(tokens_es)
-```
-Output: ['La inteligencia artificial', 'está revolucionando', 'el procesamiento de lenguaje natural', '.']
-#### Advanced Configuration
-##### Custom thresholds and context window
-```python
-sat = SATokenizer(
-semantic_threshold=0.85,
-merge_threshold=0.8,
-context_window=5,
-model_name='sentence-transformers/all-mpnet-base-v2'
-)
-```
-##### Force fine-grained mode
-```python
-tokens_fine = sat.tokenize("Deep learning models", granularity='fine')
-print(tokens_fine)
-```
-Output: ['Deep', 'learning', 'models']
-
-## Configuration Options
+### **5. Configuration Options**
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
