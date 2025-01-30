@@ -75,7 +75,7 @@ The SAT method aims to enhance the performance of Large Language Models (LLMs) b
 |---------|---------|---------|
 | `transformers` | >=4.30.0 | Semantic embeddings |
 | `sentencepiece` | >=0.1.99 | Subword tokenization |
-| `soundex` | >=1.1.5 | Phonetic encoding |
+| `jellyfish` | >=0.11.2 | Phonetic encoding |
 | `torch` | >=2.0.0 | Neural network backend |
 | `scikit-learn` | >=1.2.0 | Similarity calculations |
 
