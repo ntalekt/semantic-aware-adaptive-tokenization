@@ -4,7 +4,6 @@
     <a href="https://github.com/ntalekt/semantic-aware-adaptive-tokenization/commits/master"><img src="https://img.shields.io/github/last-commit/ntalekt/semantic-aware-adaptive-tokenization?style=flat"/></a>
   </h4>
 </div>
----
 
 # **Proposed Tokenization Method: Semantic-Aware Adaptive Tokenization (SAT)**
 
@@ -12,8 +11,6 @@
 The Semantic-Aware Adaptive Tokenization (SAT) method combines **semantic understanding**, **contextual adaptability**, and **dynamic granularity** to tokenize text based on meaning rather than rigid rules like spaces or subwords. The goal is to create tokens that preserve semantic units, adapt to the context, and improve efficiency for downstream tasks.
 
 The SAT method aims to enhance the performance of Large Language Models (LLMs) by providing a more semantically meaningful and context-aware tokenization approach. By aligning tokens with meaningful linguistic units, SAT offers improved semantic preservation, task-specific flexibility, and better efficiency in token creation.
-
----
 
 ### **How It Works**
 
