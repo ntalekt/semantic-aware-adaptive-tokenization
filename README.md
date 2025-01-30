@@ -1,7 +1,7 @@
 
 ---
 
-### **Proposed Tokenization Method: Semantic-Aware Adaptive Tokenization (SAT)**
+# **Proposed Tokenization Method: Semantic-Aware Adaptive Tokenization (SAT)**
 
 #### **Key Idea**  
 The Semantic-Aware Adaptive Tokenization (SAT) method combines **semantic understanding**, **contextual adaptability**, and **dynamic granularity** to tokenize text based on meaning rather than rigid rules like spaces or subwords. The goal is to create tokens that preserve semantic units, adapt to the context, and improve efficiency for downstream tasks.
