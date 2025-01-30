@@ -41,7 +41,7 @@ The SAT method aims to enhance the performance of Large Language Models (LLMs) b
    - It can recognize compound words in German (e.g., *Donaudampfschifffahrtsgesellschaftskapitän*) or idiomatic phrases in Chinese.
 
 #### 5. **Compression for Rare Words**
-   - For rare or out-of-vocabulary words, SAT applies a hybrid of Byte Pair Encoding (BPE) and phonetic encoding (like Soundex) to generate meaningful subword tokens.
+   - For rare or out-of-vocabulary words, SAT applies a hybrid of Byte Pair Encoding (BPE) and phonetic encoding (like Soundex) to generate meaningful subword tokens. This helps in handling uncommon words more effectively, reducing the number of unknown tokens and potentially improving model performance on diverse texts.
 
 ---
 
