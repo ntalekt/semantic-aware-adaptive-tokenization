@@ -93,6 +93,24 @@ tokens = tokenizer.tokenize(text)
 ```
 Output: ['The New York Times', 'reported', "GPT-4's", 'performance']
 
+###**5. Some other notes**
+```bash
+# Install development requirements
+pip install black pylint pytest
+
+# Format code
+black sat_tokenizer/
+
+# Run tests
+pytest tests/
+
+# Build package
+python setup.py sdist bdist_wheel
+
+# Install locally
+pip install .
+```
+
 ### **5. Configuration Options**
 
 | Parameter | Default | Description |
