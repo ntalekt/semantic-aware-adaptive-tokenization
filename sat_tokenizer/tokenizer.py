@@ -6,6 +6,7 @@ from sentencepiece import SentencePieceProcessor
 import jellyfish
 from sklearn.metrics.pairwise import cosine_similarity
 
+
 class SATokenizer:
     def __init__(
         self,
@@ -112,4 +113,3 @@ class SATokenizer:
                 final_tokens.append(unit)
 
         return final_tokens
-
