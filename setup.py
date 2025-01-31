@@ -10,6 +10,7 @@ setup(
         "jellyfish>=0.11.2",
         "torch>=2.0.0",
         "scikit-learn>=1.2.0",
+	"sentence-transformers>=2.2.2"
     ],
     author="Your Name",
     author_email="your.email@example.com",
