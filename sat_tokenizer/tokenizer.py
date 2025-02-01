@@ -37,23 +37,23 @@ class SATokenizer:
 
     def _semantic_segmentation(self, text: str) -> List[str]:
         words = [w for w in re.findall(r"\w+(?:-\w+)*|\S", text) if w.strip()]
-        
+
         if len(words) < 2:
             return words
-    
+
         embeddings = self._get_embeddings(words)
         similarities = cosine_similarity(embeddings[:-1], embeddings[1:])
-    
+
         units = []
         current_unit = [words[0]]
-    
+
         for i, sim in enumerate(similarities.diagonal()):
             if sim > self.semantic_threshold:
                 current_unit.append(words[i + 1])
             else:
                 units.append("".join(current_unit).strip())
                 current_unit = [words[i + 1]]
-    
+
         units.append("".join(current_unit).strip())
         return [u for u in units if u]
 
