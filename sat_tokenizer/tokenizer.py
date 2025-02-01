@@ -36,7 +36,8 @@ class SATokenizer:
         return outputs.last_hidden_state.mean(dim=1)
 
     def _semantic_segmentation(self, text: str) -> List[str]:
-        words = [w for w in re.split(r"(\s+)", text) if w.strip()]
+        words = [w for w in re.findall(r"\w+(?:-\w+)*|\S", text) if w.strip()]
+
         if len(words) < 2:
             return words
 
